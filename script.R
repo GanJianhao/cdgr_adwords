@@ -55,9 +55,9 @@ adwords
 # Get rid of zero impression lines
 adwords <- adwords[adwords$impressions !=0,]
 
+
+
 # Break data frame to the three sheets
-
-
 # Mobile Tab
 mobile<- adwords [adwords$campaign %in% c("App. Android-Text", "App. iOS-Text"),]
 
@@ -69,3 +69,29 @@ remarketing<- adwords [adwords$campaign %in% c("Remarketing Goods offer", "Remar
 search<-  adwords [!(adwords$campaign %in% c("Remarketing Goods offer", "Remarketing Fan", 
                                            "Remarketing Artigiano", "Remarketing Dominos", 
                                            "App. Android-Text", "App. iOS-Text")),]
+rm(adwords)
+
+# Request for Android App new Installs
+android<-get_ga(81060646, start.date = startdate, end.date = enddate,
+                 
+                 metrics = "
+                        ga:goal1Completions, 
+                        ga:newUsers
+                ",
+                 
+                 dimensions = "ga:medium",
+                 sort ="-ga:newUsers" ,
+                 filters =  "ga:medium == cpc",
+                 segment = NULL, 
+                 sampling.level = NULL,
+                 start.index = NULL, 
+                 max.results = NULL, 
+                 ga_token,
+                 verbose = getOption("rga.verbose")
+)
+
+# Export final dataframe
+# write.xlsx()
+
+# Environment Size 
+print(paste("Size:", format(object.size(ls()), unit="Kb")))
