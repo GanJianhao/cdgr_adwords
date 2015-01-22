@@ -25,6 +25,7 @@ accounts$desc<-c('website', 'android', 'ios', 'youtube')
 rm(accs)
 
 
+# Initial fetch
 
 adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 
@@ -50,3 +51,21 @@ adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 verbose = getOption("rga.verbose")
 )
 adwords
+
+# Get rid of zero impression lines
+adwords <- adwords[adwords$impressions !=0,]
+
+# Break data frame to the three sheets
+
+
+# Mobile Tab
+mobile<- adwords [adwords$campaign %in% c("App. Android-Text", "App. iOS-Text"),]
+
+# Remarketing Tab
+remarketing<- adwords [adwords$campaign %in% c("Remarketing Goods offer", "Remarketing Fan", 
+                                               "Remarketing Artigiano", "Remarketing Dominos"),]
+
+# Search tab
+search<-  adwords [!(adwords$campaign %in% c("Remarketing Goods offer", "Remarketing Fan", 
+                                           "Remarketing Artigiano", "Remarketing Dominos", 
+                                           "App. Android-Text", "App. iOS-Text")),]
