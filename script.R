@@ -3,18 +3,14 @@
 ####################################################
 
 library(RGA)
+library(lubridate)
+library(zoo)
 
 client.id = '543269518849-dcdk7eio32jm2i4hf241mpbdepmifj00.apps.googleusercontent.com'
 client.secret = '9wSw6gyDVXtcgqEe0XazoBWG'
 
 ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"),
                     verbose = getOption("rga.verbose"))
-
-#Set Dates
-# YYYY-MM-DD , today, yesterday, or 7daysAgo
-startdate='2015-01-12'
-enddate='2015-01-18'
-
 
 accs<-list_profiles(account.id = "~all", webproperty.id = "~all",
                     start.index = NULL, max.results = NULL, ga_token,
@@ -25,7 +21,28 @@ accounts$desc<-c('website', 'android', 'ios', 'youtube')
 rm(accs)
 
 
-# Initial fetch
+# Start a report data.frame
+report<-data.frame(year = 0,
+                   week = 0, 
+                   adCostB = 0, 
+                   adcostNB = 0,
+                   regB = 0,
+                   regNB = 0, 
+                   clickB = 0, 
+                   clickNB = 0                   
+)
+
+#Set Dates
+# YYYY-MM-DD , today, yesterday, or 7daysAgo
+today <- Sys.Date()
+#startdate='2015-01-12'
+startdate = as.Date('2013-12-30')
+enddate = startdate+6
+weeksleft<-as.numeric(today-startdate) %/% 7
+
+# Potential loop start
+# while (weeksleft!=0) {
+# Fetch
 
 adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 
@@ -50,11 +67,14 @@ adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 ga_token,
                 verbose = getOption("rga.verbose")
 )
-adwords
+# adwords
 
 # Get rid of zero impression lines
 adwords <- adwords[adwords$impressions !=0,]
 
+#Calculate CPR, CPO
+adwords$cpr<-adwords$adCost / adwords$goal6Completions
+adwords$cpo<-adwords$adCost / adwords$goal1Completions
 
 
 # Break data frame to the three sheets
@@ -69,7 +89,48 @@ remarketing<- adwords [adwords$campaign %in% c("Remarketing Goods offer", "Remar
 search<-  adwords [!(adwords$campaign %in% c("Remarketing Goods offer", "Remarketing Fan", 
                                            "Remarketing Artigiano", "Remarketing Dominos", 
                                            "App. Android-Text", "App. iOS-Text")),]
-rm(adwords)
+
+# search$br_nbr<-0
+# search$br_nbr[search$campaign == 'Brand'] <- "Brand"
+# search$br_nbr[search$campaign != 'Brand'] <- "No_Brand"
+search$cpr<-NULL
+search$cpo<-NULL
+search$cpr<-search$adCost / search$goal6Completions
+search$cpo<-search$adCost / search$goal1Completions
+
+
+#Start filling the report dataframe with weekly data
+tbadded<-data.frame(year = 0,
+                    week = 0, 
+                    adCostB = 0, 
+                    adcostNB = 0,
+                    regB = 0,
+                    regNB = 0, 
+                    clickB = 0, 
+                    clickNB = 0                   
+)
+tbadded$year <- year(enddate)
+tbadded$week <-  week(enddate)
+tbadded$adCostB <- search$adCost[search$campaign == 'Brand']
+tbadded$adcostNB <- sum(search$adCost[search$campaign != 'Brand'])
+tbadded$regB <- search$goal6Completions[search$campaign == 'Brand']
+tbadded$regNB <- sum(search$goal6Completions[search$campaign != 'Brand'])
+tbadded$clickB <- search$adClicks[search$campaign == 'Brand']
+tbadded$clickNB <- sum(search$adClicks[search$campaign != 'Brand'])
+
+
+# startdate=startdate+7
+# enddate=startdate+6
+# 
+# weeksleft<-as.numeric(today-startdate) %/% 7
+# # kati se rbind       
+        
+# } Potential Loop end
+        
+        
+# rm(adwords)
+
+
 
 # Request for Android App new Installs
 android<-get_ga(81060646, start.date = startdate, end.date = enddate,
@@ -89,6 +150,11 @@ android<-get_ga(81060646, start.date = startdate, end.date = enddate,
                  ga_token,
                  verbose = getOption("rga.verbose")
 )
+
+# Check how all data can be included in one data.frame
+# check how we can retrieve data from previous weks for comparison
+# Differences with previous weeks
+
 
 # Export final dataframe
 # write.xlsx()
