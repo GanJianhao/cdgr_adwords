@@ -1,3 +1,4 @@
+# This is a test script to recreate the adwords report without using the Adwords API or package
 
 library(RGA)
 
@@ -30,19 +31,36 @@ tommys<-get_ga(25764841, start.date = startdate, end.date = enddate,
                         ga:CTR,
                         ga:CPC,
                         ga:adCost,
-                        ga:adSlotPosition
+                        ga:costPerGoalConversion,
+                        ga:goal1Completions,
+                        ga:goal6Completions
                         ",
                 
                 dimensions = "
-                        ga:campaign
+                        ga:adwordsCampaignID, 
+                        ga:campaign ,
+                        ga:adwordsAdGroupID,
+                        ga:adGroup, 
+                        ga:keyword                        
                 ",
                 sort = "-ga:impressions", 
                 filters = NULL,
-                segment = NULL, 
+                segment = NULL,
                 sampling.level = NULL,
                 start.index = NULL, 
                 max.results = NULL, 
                 ga_token,
                 verbose = getOption("rga.verbose")
 )
-head(tommys)
+# tommys[tommys$campaign == "FO_Ath",]
+
+head(tommys,10)
+
+# add week
+
+# Feed a giant dataframe
+
+library(xlsx)
+
+write.xlsx(x = tommys, file = "asd.xlsx",
+           sheetName = "Sheet 1", row.names = FALSE)
