@@ -136,9 +136,23 @@ report$cprNB<-report$adCostNB / report$regNB
 
 ## Plotting
 
+# x<-1:20
+# y1<-sqrt(x)
+# y2<-sqrt(x)*x
+# plot(x,y1,ylim=c(0,25),col="blue")
+# par(new=TRUE)
+# plot(x,y2,ylim=c(0,100),col="red",axes=FALSE)
+# axis(4)
+
+
+
 # Ad Costs All campaigns
 plot(report$date, report$adCostNB, type= 'h', lwd = 4, col = 'deepskyblue1', ylim = c(0,10000),
      main = "Adwords Costs per week (Brand excl.)" ,xlab="Date", ylab = "Ad Cost")
+par(new=TRUE)
+plot(report$date, report$regNB, type= 'l', lwd = 2, col = 'red',ylab = "",xlab = "", ylim = c(0,1000),axes=FALSE)
+axis(4)
+# με δύο άξονες!! Yaaayyyy!!!
 
 # Ad Costs Brand campaign
 plot(report$date, report$adCostB, type= 'h', lwd = 4, col = 'deepskyblue2', 
