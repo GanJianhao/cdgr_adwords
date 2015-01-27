@@ -2,9 +2,13 @@
 ############### Adwords Report #####################
 ####################################################
 
+load(".RData")
+
 library(RGA)
+library(xlsx)
 library(lubridate)
 library(zoo)
+library(ggplot2)
 
 client.id = '543269518849-dcdk7eio32jm2i4hf241mpbdepmifj00.apps.googleusercontent.com'
 client.secret = '9wSw6gyDVXtcgqEe0XazoBWG'
@@ -22,22 +26,26 @@ rm(accs)
 
 
 # Start a report data.frame
-report<-data.frame(year = 0,
-                   week = 0,
-                   date = 0,
-                   adCostB = 0, 
-                   adCostNB = 0,
-                   regB = 0,
-                   regNB = 0, 
-                   clickB = 0, 
-                   clickNB = 0                   
-)
+# report<-data.frame(year = 0,
+#                    week = 0,
+#                    date = 0,
+#                    adCostB = 0, 
+#                    adCostNB = 0,
+#                    regB = 0,
+#                    regNB = 0, 
+#                    clickB = 0, 
+#                    clickNB = 0                   
+# )
 
 #Set Dates
 # YYYY-MM-DD , today, yesterday, or 7daysAgo
 today <- Sys.Date()
-#startdate='2015-01-12'
-startdate = as.Date('2013-12-30')
+
+####################################################
+############### SOS!! CHANGE DATE###################
+####################################################
+startdate = as.Date('2015-1-19')
+# startdate = as.Date('2013-12-30')
 enddate = startdate+6
 weeksleft<-as.numeric(today-startdate) %/% 7
 
@@ -122,6 +130,27 @@ tbadded$regNB <- sum(search$goal6Completions[search$campaign != 'Brand'])
 tbadded$clickB <- search$adClicks[search$campaign == 'Brand']
 tbadded$clickNB <- sum(search$adClicks[search$campaign != 'Brand'])
 
+#Request for Android App new Installs
+
+android<-get_ga(81060646, start.date = startdate, end.date = enddate,
+                
+                metrics = "
+                        ga:goal1Completions, 
+                        ga:newUsers
+                ",
+                
+                dimensions = "ga:medium",
+                sort ="-ga:newUsers" ,
+                filters =  "ga:medium == cpc",
+                segment = NULL, 
+                sampling.level = NULL,
+                start.index = NULL, 
+                max.results = NULL, 
+                ga_token,
+                verbose = getOption("rga.verbose")
+)
+
+
 startdate=startdate+7
 enddate=startdate+6
 
@@ -159,39 +188,33 @@ plot(report$date, report$adCostB, type= 'h', lwd = 4, col = 'deepskyblue2',
      main = "Brand Campaign Costs per week" ,xlab="Date", ylab = "Ad Cost")
 
 # Registrations
-library(ggplot2)
+# library(ggplot2)
 
 
 # rm(adwords)
 
 
 
-# Request for Android App new Installs
-# android<-get_ga(81060646, start.date = startdate, end.date = enddate,
-#                  
-#                  metrics = "
-#                         ga:goal1Completions, 
-#                         ga:newUsers
-#                 ",
-#                  
-#                  dimensions = "ga:medium",
-#                  sort ="-ga:newUsers" ,
-#                  filters =  "ga:medium == cpc",
-#                  segment = NULL, 
-#                  sampling.level = NULL,
-#                  start.index = NULL, 
-#                  max.results = NULL, 
-#                  ga_token,
-#                  verbose = getOption("rga.verbose")
-# )
 
 # Check how all data can be included in one data.frame
 # check how we can retrieve data from previous weks for comparison
 # Differences with previous weeks
 
+# Print on screen the number of android installs
+print("New Android App Installations")
+print(android$newUsers)
 
-# Export final dataframe
-# write.xlsx()
+# Export final dataframes
+
+write.xlsx(x = search, file = "search.xlsx",
+           sheetName = "Sheet 1", row.names = FALSE)
+
+write.xlsx(x = mobile, file = "mobile.xlsx",
+           sheetName = "Sheet 1", row.names = FALSE)
+
+write.xlsx(x = remarketing, file = "remarketing.xlsx",
+           sheetName = "Sheet 1", row.names = FALSE)
 
 # Environment Size 
 # print(paste("Size:", format(object.size(ls()), unit="Kb")))
+save.image()
