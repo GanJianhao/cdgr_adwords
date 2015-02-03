@@ -44,7 +44,7 @@ today <- Sys.Date()
 ####################################################
 ############### SOS!! CHANGE DATE###################
 ####################################################
-startdate = as.Date('2015-1-19')
+startdate = as.Date('2015-1-26')
 # startdate = as.Date('2013-12-30')
 enddate = startdate+6
 weeksleft<-as.numeric(today-startdate) %/% 7
@@ -155,11 +155,15 @@ startdate=startdate+7
 enddate=startdate+6
 
 weeksleft<-as.numeric(today-startdate) %/% 7
+
+report$cprB<-NULL
+report$cprNB<-NULL
+
 # kati se rbind       
 report<-rbind(report,tbadded )       
 } # Potential Loop end
         
-report<-report[-1,]  
+#report<-report[-1,]  
 report$cprB<-report$adCostB / report$regB
 report$cprNB<-report$adCostNB / report$regNB
 
