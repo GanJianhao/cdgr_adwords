@@ -380,14 +380,12 @@ orders_src$metric<-'orders'
 registered_src[is.na(registered_src)]<-0
 verified_src[is.na(verified_src)]<-0
 orders_src[is.na(orders_src)]<-0
-
+sql<-rbind(registered_src, verified_src, orders_src)
+rm(registered_src, verified_src, orders_src)
 # Export final dataframes
-# write.xlsx(x = registration_src, file = "registration.xlsx",
-#            sheetName = "Sheet 1", row.names = FALSE)
-# write.xlsx(x = verified_src, file = "verification.xlsx",
-#            sheetName = "Sheet 1", row.names = FALSE)
-# write.xlsx(x = orders_src, file = "order.xlsx",
-#            sheetName = "Sheet 1", row.names = FALSE)
+write.xlsx(x = sql, file = "sql.xlsx",
+           sheetName = "Sheet 1", row.names = FALSE)
+
 
 # save.image()
 proc.time() - ptm
