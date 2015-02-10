@@ -44,7 +44,7 @@ today <- Sys.Date()
 ####################################################
 ############### SOS!! CHANGE DATE###################
 ####################################################
-startdate = as.Date('2015-1-26')
+startdate = as.Date('2015-2-2')
 # startdate = as.Date('2013-12-30')
 enddate = startdate+6
 weeksleft<-as.numeric(today-startdate) %/% 7

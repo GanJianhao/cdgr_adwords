@@ -367,6 +367,10 @@ registered_src$cat[grep("google|cpc", registered_src$SOURCE , ignore.case=FALSE,
 verified_src$cat[grep("google|cpc", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"adwords"
 orders_src$cat[grep("google|cpc", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"adwords"
 
+registered_src$cat[grep("google|cpc|Brand", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
+verified_src$cat[grep("google|cpc|Brand", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
+orders_src$cat[grep("google|cpc|Brand", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
+
 registered_src<-ddply(registered_src,c("cat", "MONTH"), summarize, registration=sum(REGISTERED_USERS))
 verified_src<-ddply(verified_src,c("cat", "MONTH"), summarize, verifications=sum(VERIFIED_USERS))
 orders_src<-ddply(orders_src,c("cat", "MONTH"), summarize, orders=sum(VERIFIED_ORDERS))
