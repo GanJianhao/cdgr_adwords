@@ -95,6 +95,18 @@ report$cat[grep("App. Android", report$campaign , ignore.case=FALSE, fixed=FALSE
 report$cat[grep("App. iOS", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"iOS"
 report$cat[grep("Brand", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Brand"
 
+report$cat[grep("Mundial", report$campaign , ignore.case=TRUE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("mundo", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP Dominos Triti", report$campaign , ignore.case=TRUE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP Dominos Triti Similar", report$campaign , ignore.case=TRUE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP Goody's", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP Goody's Similar", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Display"
+report$cat[grep("DSP Pizza Fan 2", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP Pizza_Fan", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("DSP_Chains", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("Dsp_Retarg_Test", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("Hut remarketing", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Remarketing"
+report$cat[grep("mundo sports", report$campaign , ignore.case=FALSE, fixed=TRUE)]<-"Display"
 
 report$cat[grep("Mundobasket", report$campaign , ignore.case=TRUE, fixed=FALSE)]<-"Youtube"
 report$cat[grep("TV #match_day_offer", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Youtube"
@@ -153,6 +165,7 @@ and_free<-get_ga(81060646, start.date = startdate, end.date = enddate,
                      
                      metrics = "
                         ga:sessions,
+                        ga:users,
                         ga:newUsers
                 ",
                      
@@ -177,6 +190,7 @@ ios_free<-get_ga(81074931, start.date = startdate, end.date = enddate,
                  
                  metrics = "
                         ga:sessions,
+                        ga:users,
                         ga:newUsers
                 ",
                  
@@ -201,17 +215,63 @@ rm(and_free, ios_free)
 
 sessions<-select(mob_free, app, yearMonth, sessions) %>% spread(yearMonth, sessions)
 sessions$cat<-'sessions'
+users<-select(mob_free, app, yearMonth, users) %>% spread(yearMonth, users)
+users$cat<-'users'
 newUsers<-select(mob_free, app, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
 newUsers$cat<-'newUsers'
-mob_free<-rbind(sessions, newUsers)
+mob_free<-rbind(sessions,users, newUsers)
 mob_free<-mob_free[,c(1,14,2:13)]
 rm(newUsers, sessions)
+
+# Facebook Web 
+fbweb<-get_ga(25764841, start.date = startdate, end.date = enddate,
+                     
+                     metrics = "
+                        ga:sessions,
+                        ga:newUsers,
+                        ga:goal6Completions
+                     ",
+                     
+                     dimensions = "
+                     ga:source,
+                     ga:yearMonth
+                     ",
+                     sort = "
+                     ga:yearMonth,
+                     -ga:sessions
+                     ", 
+                     filters = NULL,
+                     segment = NULL, 
+                     sampling.level = NULL,
+                     start.index = NULL, 
+                     max.results = NULL, 
+                     ga_token,
+                     verbose = getOption("rga.verbose")
+)
+# Facebook
+names(fbweb)<-c("src", "yearMonth", "sessions", "newUsers", "registrations")
+sessions<-select(fbweb, src, yearMonth, sessions) %>% spread(yearMonth, sessions)
+sessions$cat<-'sessions'
+newUsers<-select(fbweb, src, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
+newUsers$cat<-'newusers'
+registrations<-select(fbweb, src, yearMonth, registrations) %>% spread(yearMonth, registrations)
+registrations$cat<-'registrations'
+
+
+
+facebook_web<-rbind(sessions,newUsers, registrations)
+facebook_web<-facebook_web[,c(1,14,2:13)]
+rm(newUsers, sessions,registrations)
+facebook_web[is.na(facebook_web)]<-0
+facebook_web<-facebook_web[grep("facebook", facebook_web$src , ignore.case=FALSE, fixed=FALSE),]
+
 
 gc()
 proc.time() - ptm
 write.xlsx(x = report, file = "adwords.xlsx", row.names = FALSE)
 write.xlsx(x = web_free_seg, file = "web_free.xlsx", row.names = FALSE)
 write.xlsx(x = mob_free, file = "mob_free.xlsx", row.names = FALSE)
+write.xlsx(x = facebook_web, file = "facebook.xlsx", row.names = FALSE)
 proc.time() - ptm
 # Environment Size 
 # print(paste("Size:", format(object.size(ls()), unit="Kb")))
