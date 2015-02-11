@@ -221,7 +221,7 @@ newUsers<-select(mob_free, app, yearMonth, newUsers) %>% spread(yearMonth, newUs
 newUsers$cat<-'newUsers'
 mob_free<-rbind(sessions,users, newUsers)
 mob_free<-mob_free[,c(1,14,2:13)]
-rm(newUsers, sessions)
+rm(newUsers, users,sessions)
 
 # Facebook Web 
 fbweb<-get_ga(25764841, start.date = startdate, end.date = enddate,
@@ -261,7 +261,7 @@ registrations$cat<-'registrations'
 
 facebook_web<-rbind(sessions,newUsers, registrations)
 facebook_web<-facebook_web[,c(1,14,2:13)]
-rm(newUsers, sessions,registrations)
+rm(newUsers, sessions,registrations, fbweb)
 facebook_web[is.na(facebook_web)]<-0
 facebook_web<-facebook_web[grep("facebook", facebook_web$src , ignore.case=FALSE, fixed=FALSE),]
 
@@ -377,60 +377,92 @@ verified_src$cat<-""
 orders_src$cat<-""
 
 # Android
-registered_src$cat[registered_src$SOURCE == "Android"]<-"android"
+registered_src$cat[registered_src$SOURCE == "Android"]<-"android" #1
 verified_src$cat[verified_src$SOURCE == "Android"]<-"android"
 orders_src$cat[orders_src$SOURCE == "Android"]<-"android"
 # iOS
-registered_src$cat[registered_src$SOURCE == "IOS"]<-"ios"
+registered_src$cat[registered_src$SOURCE == "IOS"]<-"ios" #2
 verified_src$cat[verified_src$SOURCE == "IOS"]<-"ios"
 orders_src$cat[orders_src$SOURCE == "IOS"]<-"ios"
-# Organic
-## Google
-registered_src$cat[grep("google", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-verified_src$cat[grep("google", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-orders_src$cat[grep("google", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-## Yahoo
-registered_src$cat[grep("yahoo", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-verified_src$cat[grep("yahoo", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-orders_src$cat[grep("yahoo", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-## Bing
-registered_src$cat[grep("bing", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-verified_src$cat[grep("bing", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-orders_src$cat[grep("bing", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-## Search
-registered_src$cat[grep("search", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-verified_src$cat[grep("search", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
-orders_src$cat[grep("search", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic"
 
-# Newsletter
-registered_src$cat[grep("newsletter", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter"
-verified_src$cat[grep("newsletter", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter"
-orders_src$cat[grep("newsletter", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter"
+# Paid Facebook
+registered_src$cat[grep("facebook", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Paid Facebook" #3
+verified_src$cat[grep("facebook", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Paid Facebook" #3
+orders_src$cat[grep("facebook", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Paid Facebook" #3
 
-# Facebook
-registered_src$cat[grep("facebook", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"facebook"
-verified_src$cat[grep("facebook", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"facebook"
-orders_src$cat[grep("facebook", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"facebook"
+# Social
+registered_src$cat[grep("facebook.com", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Social" #4
+verified_src$cat[grep("facebook.com", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Social" #4
+orders_src$cat[grep("facebook.com", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"Social" #4
 
-# Affiliate
-registered_src$cat[grep("linkwise", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate"
-verified_src$cat[grep("linkwise", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate"
-orders_src$cat[grep("linkwise", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate"
-
-# Direct 
-registered_src$cat[registered_src$cat == ""]<-"direct"
-verified_src$cat[verified_src$cat == ""]<-"direct"
-orders_src$cat[orders_src$cat == ""]<-"direct"
+# # Direct 
+registered_src$cat[registered_src$SOURCE == ""]<-"direct" #5
+registered_src$cat[grep("clikdeliv", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #6
+registered_src$cat[grep("direct", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #7
+registered_src$cat[grep("clickdelivery", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #8
+verified_src$cat[verified_src$SOURCE == ""]<-"direct" #5
+verified_src$cat[grep("clikdeliv", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #6
+verified_src$cat[grep("direct", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #7
+verified_src$cat[grep("clickdelivery", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #8
+orders_src$cat[orders_src$SOURCE == ""]<-"direct" #5
+orders_src$cat[grep("clikdeliv", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #6
+orders_src$cat[grep("direct", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #7
+orders_src$cat[grep("clickdelivery", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"direct" #8
 
 # Adwords
-registered_src$cat[grep("google|cpc", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"adwords"
-verified_src$cat[grep("google|cpc", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"adwords"
-orders_src$cat[grep("google|cpc", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"adwords"
+registered_src$cat[grep("google", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"adwords" #9
+registered_src$cat[grep("google|cpc|Brand", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand" #10
+registered_src$cat[grep("remar", registered_src$SOURCE , ignore.case=TRUE, fixed=FALSE)]<-"remarketing" #11
+registered_src$cat[grep("google|display|", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"display" #19
+verified_src$cat[grep("google", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"adwords" #9
+verified_src$cat[grep("google|cpc|Brand", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand" #10
+verified_src$cat[grep("remar", verified_src$SOURCE , ignore.case=TRUE, fixed=FALSE)]<-"remarketing" #11
+verified_src$cat[grep("google|display|", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"display" #19
+orders_src$cat[grep("google", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"adwords" #9
+orders_src$cat[grep("google|cpc|Brand", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand" #10
+orders_src$cat[grep("remar", orders_src$SOURCE , ignore.case=TRUE, fixed=FALSE)]<-"remarketing" #11
+orders_src$cat[grep("google|display|", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"display" #19
 
-registered_src$cat[grep("google|cpc|Brand", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
-verified_src$cat[grep("google|cpc|Brand", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
-orders_src$cat[grep("google|cpc|Brand", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"brand"
+# Organic
+registered_src$cat[grep("google.", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"organic" #12
+registered_src$cat[grep("search", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #13
+registered_src$cat[grep("yahoo", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #14
+registered_src$cat[grep("bing", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #17
+verified_src$cat[grep("google.", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"organic" #12
+verified_src$cat[grep("search", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #13
+verified_src$cat[grep("yahoo", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #14
+verified_src$cat[grep("bing", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #17
+orders_src$cat[grep("google.", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"organic" #12
+orders_src$cat[grep("search", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #13
+orders_src$cat[grep("yahoo", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #14
+orders_src$cat[grep("bing", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"organic" #17
 
+# Newsletter
+registered_src$cat[grep("newsletter", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter" #18
+verified_src$cat[grep("newsletter", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter" #18
+orders_src$cat[grep("newsletter", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"newsletter" #18
+
+# Affiliate
+registered_src$cat[grep("linkwise", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate" # 15
+verified_src$cat[grep("linkwise", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate" # 15
+orders_src$cat[grep("linkwise", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"affiliate" # 15
+
+# Youtube
+registered_src$cat[grep("youtube", registered_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"youtube" # 16
+verified_src$cat[grep("youtube", verified_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"youtube" # 16
+orders_src$cat[grep("youtube", orders_src$SOURCE , ignore.case=FALSE, fixed=FALSE)]<-"youtube" # 16
+
+# Referral
+registered_src$cat[registered_src$cat == ""]<-"referral" #5
+verified_src$cat[verified_src$cat == ""]<-"referral" #5
+orders_src$cat[orders_src$cat == ""]<-"referral" #5
+
+# Google+
+registered_src$cat[grep("plus.url.google", registered_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"Social" #4
+verified_src$cat[grep("plus.url.google", verified_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"Social" #4
+orders_src$cat[grep("plus.url.google", orders_src$SOURCE , ignore.case=FALSE, fixed=TRUE)]<-"Social" #4
+
+# Summarize
 registered_src<-ddply(registered_src,c("cat", "MONTH"), summarize, registration=sum(REGISTERED_USERS))
 verified_src<-ddply(verified_src,c("cat", "MONTH"), summarize, verifications=sum(VERIFIED_USERS))
 orders_src<-ddply(orders_src,c("cat", "MONTH"), summarize, orders=sum(VERIFIED_ORDERS))
