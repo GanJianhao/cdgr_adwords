@@ -112,7 +112,7 @@ report$cat[grep("Mundobasket", report$campaign , ignore.case=TRUE, fixed=FALSE)]
 report$cat[grep("TV #match_day_offer", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Youtube"
 report$cat[grep("TV generic", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Youtube"
 report$cat[report$cat==0]<-"Rest"
-report<-report[,c(1,14,15,2:13)]
+report<-report[,c(1,(ncol(report)-1), ncol(report), 2:(ncol(report)-2))]
 rm(adwords_init)
 
 
@@ -157,6 +157,7 @@ registrations$metric<-'registrations'
 
 web_free_seg<- rbind(sessions, newUsers, registrations)
 web_free_seg[is.na(web_free_seg)]<-0
+web_free_seg<-web_free_seg[,c(1,ncol(sql), 2:(ncol(sql)-1))]
 
 rm(accounts, adClicks, adCost,  free_seg, impressions, newUsers, reg, registrations, sessions)
 
@@ -220,7 +221,7 @@ users$cat<-'users'
 newUsers<-select(mob_free, app, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
 newUsers$cat<-'newUsers'
 mob_free<-rbind(sessions,users, newUsers)
-mob_free<-mob_free[,c(1,14,2:13)]
+mob_free<-mob_free[,c(1,ncol(mob_free),2:(ncol(mob_free)-1))]
 rm(newUsers, users,sessions)
 
 # Facebook Web 
@@ -260,7 +261,7 @@ registrations$cat<-'registrations'
 
 
 facebook_web<-rbind(sessions,newUsers, registrations)
-facebook_web<-facebook_web[,c(1,14,2:13)]
+facebook_web<-facebook_web[,(1, ncol(facebook_web), 2:(ncol(facebook_web)-1))]
 rm(newUsers, sessions,registrations, fbweb)
 facebook_web[is.na(facebook_web)]<-0
 facebook_web<-facebook_web[grep("facebook", facebook_web$src , ignore.case=FALSE, fixed=FALSE),]
@@ -477,6 +478,8 @@ registered_src[is.na(registered_src)]<-0
 verified_src[is.na(verified_src)]<-0
 orders_src[is.na(orders_src)]<-0
 sql<-rbind(registered_src, verified_src, orders_src)
+sql<-sql[,c(1,ncol(sql), 2:(ncol(sql)-1))]
+
 rm(registered_src, verified_src, orders_src)
 # Export final dataframes
 write.xlsx(x = sql, file = "sql.xlsx",
