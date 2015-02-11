@@ -30,8 +30,8 @@ rm(accs)
 ####################################################
 ############### SOS!! CHANGE DATE###################
 ####################################################
-startdate = as.Date('2014-01-01')
-enddate = as.Date('2014-12-31')
+startdate = as.Date('2015-01-01')
+enddate = as.Date('2015-01-31')
 
 
 adwords_init<-get_ga(25764841, start.date = startdate, end.date = enddate,
@@ -157,7 +157,7 @@ registrations$metric<-'registrations'
 
 web_free_seg<- rbind(sessions, newUsers, registrations)
 web_free_seg[is.na(web_free_seg)]<-0
-web_free_seg<-web_free_seg[,c(1,ncol(sql), 2:(ncol(sql)-1))]
+web_free_seg<-web_free_seg[,c(1,ncol(web_free_seg), 2:(ncol(web_free_seg)-1))]
 
 rm(accounts, adClicks, adCost,  free_seg, impressions, newUsers, reg, registrations, sessions)
 
@@ -261,7 +261,7 @@ registrations$cat<-'registrations'
 
 
 facebook_web<-rbind(sessions,newUsers, registrations)
-facebook_web<-facebook_web[,(1, ncol(facebook_web), 2:(ncol(facebook_web)-1))]
+facebook_web<-facebook_web[,c(1, ncol(facebook_web), 2:(ncol(facebook_web)-1))]
 rm(newUsers, sessions,registrations, fbweb)
 facebook_web[is.na(facebook_web)]<-0
 facebook_web<-facebook_web[grep("facebook", facebook_web$src , ignore.case=FALSE, fixed=FALSE),]
@@ -286,21 +286,26 @@ proc.time() - ptm
 ###################
 # Verifications
 ###################
+
+#
+# exw allaksei to i_date se u_date
+#
+
 # Establish connection
 con <- dbConnect(RMySQL::MySQL(), host = 'db.clickdelivery.gr', port = 3307, dbname = "beta",
                  user = "tantonakis", password = "2secret4usAll!")
 # Send query
 rs <- dbSendQuery(con,"
 
-SELECT            MONTH(FROM_UNIXTIME(`user_master`.`i_date`)) as MONTH,
+SELECT            MONTH(FROM_UNIXTIME(`user_master`.`u_date`)) as MONTH,
                   `user_master`.`referal_source` AS SOURCE ,
                   COUNT(*) AS VERIFIED_USERS
                   FROM `user_master`
-                  WHERE `user_master`.`verification_date` >= UNIX_TIMESTAMP('2014-01-01')
-                  AND `user_master`.`verification_date` < UNIX_TIMESTAMP('2015-01-01')
+                  WHERE `user_master`.`verification_date` >= UNIX_TIMESTAMP('2015-01-01')
+                  AND `user_master`.`verification_date` < UNIX_TIMESTAMP('2015-02-01')
                   AND `user_master`.`status` = 'VERIFIED'
                   AND `user_master`.`is_deleted` = 'N'
-                  GROUP BY `user_master`.`referal_source`, MONTH(FROM_UNIXTIME(`user_master`.`i_date`))
+                  GROUP BY `user_master`.`referal_source`, MONTH(FROM_UNIXTIME(`user_master`.`u_date`))
                   
                   ")
 # Fetch query results (n=-1) means all results
@@ -325,8 +330,8 @@ SELECT MONTH(FROM_UNIXTIME(`user_master`.`i_date`)) as MONTH,
                 `user_master`.`referal_source` AS SOURCE,
                 COUNT(*) AS REGISTERED_USERS
                 FROM `user_master`
-		WHERE `user_master`.`i_date` >= UNIX_TIMESTAMP('2014-01-01')
-		AND `user_master`.`i_date` < UNIX_TIMESTAMP('2015-01-01')
+		WHERE `user_master`.`i_date` >= UNIX_TIMESTAMP('2015-01-01')
+		AND `user_master`.`i_date` < UNIX_TIMESTAMP('2015-02-01')
 		AND `user_master`.`is_deleted` = 'N'
 		GROUP BY `user_master`.`referal_source`, MONTH(FROM_UNIXTIME(`user_master`.`i_date`))
                   
@@ -357,8 +362,8 @@ rs <- dbSendQuery(con,"
                          COUNT(*) AS VERIFIED_ORDERS
                   FROM `order_master`
 
-                  WHERE `order_master`.`i_date` >= UNIX_TIMESTAMP('2014-01-01')
-                  AND `order_master`.`i_date` < UNIX_TIMESTAMP('2015-01-01')
+                  WHERE `order_master`.`i_date` >= UNIX_TIMESTAMP('2015-01-01')
+                  AND `order_master`.`i_date` < UNIX_TIMESTAMP('2015-02-01')
                   AND `order_master`.`status` IN ('VERIFIED', 'REJECTED')
                   AND `order_master`.`is_deleted` = 'N'
                   GROUP BY  `order_master`.`order_referal`, MONTH(FROM_UNIXTIME(`order_master`.`i_date`))
@@ -477,6 +482,8 @@ orders_src$metric<-'orders'
 registered_src[is.na(registered_src)]<-0
 verified_src[is.na(verified_src)]<-0
 orders_src[is.na(orders_src)]<-0
+#verified_src$'2'<-NULL
+
 sql<-rbind(registered_src, verified_src, orders_src)
 sql<-sql[,c(1,ncol(sql), 2:(ncol(sql)-1))]
 
@@ -488,3 +495,4 @@ write.xlsx(x = sql, file = "sql.xlsx",
 
 # save.image()
 proc.time() - ptm
+gc()
