@@ -15,12 +15,10 @@ library(dplyr)
 client.id = '543269518849-dcdk7eio32jm2i4hf241mpbdepmifj00.apps.googleusercontent.com'
 client.secret = '9wSw6gyDVXtcgqEe0XazoBWG'
 
-ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"),
-                    verbose = getOption("rga.verbose"))
+ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"))
 
 accs<-list_profiles(account.id = "~all", webproperty.id = "~all",
-                    start.index = NULL, max.results = NULL, ga_token,
-                    verbose = getOption("rga.verbose"))
+                    start.index = NULL, max.results = NULL, ga_token)
 
 accounts<-data.frame(id = accs$id)
 accounts$desc<-c('website', 'android', 'ios', 'youtube')
@@ -58,8 +56,7 @@ adwords_init<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 sampling.level = NULL,
                 start.index = NULL, 
                 max.results = NULL, 
-                ga_token,
-                verbose = getOption("rga.verbose")
+                ga_token
 )
 # adwords
 
@@ -140,8 +137,7 @@ free_seg<-get_ga(25764841, start.date = startdate, end.date = enddate,
                      sampling.level = NULL,
                      start.index = NULL, 
                      max.results = NULL, 
-                     ga_token,
-                     verbose = getOption("rga.verbose")
+                     ga_token
 )
 # free_seg
 free_seg<-select(free_seg,channelGrouping, yearMonth, sessions, newUsers, goal6Completions)
@@ -181,8 +177,7 @@ and_free<-get_ga(81060646, start.date = startdate, end.date = enddate,
                      sampling.level = NULL,
                      start.index = NULL, 
                      max.results = NULL, 
-                     ga_token,
-                     verbose = getOption("rga.verbose")
+                     ga_token
 )
 and_free$app<-'android'
 
@@ -206,8 +201,7 @@ ios_free<-get_ga(81074931, start.date = startdate, end.date = enddate,
                  sampling.level = NULL,
                  start.index = NULL, 
                  max.results = NULL, 
-                 ga_token,
-                 verbose = getOption("rga.verbose")
+                 ga_token
 )
 ios_free$app<-'ios'
 
@@ -246,8 +240,7 @@ fbweb<-get_ga(25764841, start.date = startdate, end.date = enddate,
                      sampling.level = NULL,
                      start.index = NULL, 
                      max.results = NULL, 
-                     ga_token,
-                     verbose = getOption("rga.verbose")
+                     ga_token
 )
 # Facebook
 names(fbweb)<-c("src", "yearMonth", "sessions", "newUsers", "registrations")
@@ -321,7 +314,7 @@ proc.time() - ptm
 # Registrations
 ############################################################################
 # Establish connection
-con <- dbConnect(RMySQL::MySQL(), host = 'db.clickdelivery.gr', port = 3307, dbname = "beta",
+con <- dbConnect(RMySQL::MySQL(), host = '172.20.0.1', port = 3307, dbname = "beta",
                  user = "tantonakis", password = "2secret4usAll!")
 # Send query
 rs <- dbSendQuery(con,"
@@ -352,7 +345,7 @@ gc()
 #########################################
 
 # Establish connection
-con <- dbConnect(RMySQL::MySQL(), host = 'db.clickdelivery.gr', port = 3307, dbname = "beta",
+con <- dbConnect(RMySQL::MySQL(), host = '172.20.0.1', port = 3307, dbname = "beta",
                  user = "tantonakis", password = "2secret4usAll!")
 # Send query
 rs <- dbSendQuery(con,"

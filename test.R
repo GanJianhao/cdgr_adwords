@@ -5,8 +5,7 @@ library(RGA)
 client.id = '543269518849-dcdk7eio32jm2i4hf241mpbdepmifj00.apps.googleusercontent.com'
 client.secret = '9wSw6gyDVXtcgqEe0XazoBWG'
 
-ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"),
-                    verbose = getOption("rga.verbose"))
+ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"))
 
 #Set Dates
 # YYYY-MM-DD , today, yesterday, or 7daysAgo
@@ -15,8 +14,7 @@ enddate='2015-01-18'
 
 
 accs<-list_profiles(account.id = "~all", webproperty.id = "~all",
-                    start.index = NULL, max.results = NULL, ga_token,
-                    verbose = getOption("rga.verbose"))
+                    start.index = NULL, max.results = NULL, ga_token)
 
 accounts<-data.frame(id = accs$id)
 accounts$desc<-c('website', 'android', 'ios', 'youtube')
@@ -49,8 +47,7 @@ tommys<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 sampling.level = NULL,
                 start.index = NULL, 
                 max.results = NULL, 
-                ga_token,
-                verbose = getOption("rga.verbose")
+                ga_token)
 )
 # tommys[tommys$campaign == "FO_Ath",]
 

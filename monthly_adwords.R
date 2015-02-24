@@ -11,12 +11,10 @@ library(xlsx)
 client.id = '543269518849-dcdk7eio32jm2i4hf241mpbdepmifj00.apps.googleusercontent.com'
 client.secret = '9wSw6gyDVXtcgqEe0XazoBWG'
 
-ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"),
-                    verbose = getOption("rga.verbose"))
+ga_token<-authorize(client.id, client.secret, cache = getOption("rga.cache"))
 
 accs<-list_profiles(account.id = "~all", webproperty.id = "~all",
-                    start.index = NULL, max.results = NULL, ga_token,
-                    verbose = getOption("rga.verbose"))
+                    start.index = NULL, max.results = NULL, ga_token)
 
 accounts<-data.frame(id = accs$id)
 accounts$desc<-c('website', 'android', 'ios', 'youtube')
@@ -50,8 +48,7 @@ adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
                 sampling.level = NULL,
                 start.index = NULL, 
                 max.results = NULL, 
-                ga_token,
-                verbose = getOption("rga.verbose")
+                ga_token
 )
 # adwords
 
