@@ -36,7 +36,7 @@ rm(accs)
 ####################################################
 ############### SOS!! CHANGE DATE###################
 ####################################################
-startdate = as.Date('2015-2-19')
+startdate = as.Date('2015-2-20')
 # enddate = as.Date('2015-12-31')
 # enddate = as.Date('yesterday')
 
@@ -129,7 +129,7 @@ database_campaign<-distinct(database_campaign)
 database_keyword<-database_keyword[order(database_keyword$date),]
 database_adgroup<-database_adgroup[order(database_adgroup$date),]
 database_campaign<-database_campaign[order(database_campaign$date),]
-rm(total)
+rm(fetch)
 save.image("C:/Users/tantonakis/Google Drive/Scripts/AnalyticsProj/cdgr_adwords/adwords_database.RData")
 
 # Plot per keyword
@@ -162,9 +162,11 @@ manipulate(
                          "CPC" = 8, "Orders" = 9, "Registrations"= 10, label = "Metric")
         
         )
+# export
+write.xlsx(x= filter(database_keyword, date >= '2015-01-01', ad.cost !=0), file ='export_tom.xlsx' )
 
 
 # Stop timer
 proc.time() - ptm
 
-distinct(database_keyword$campaign)
+write.xlsx(x= filter(database_keyword, date >= '2015-02-01', ad.cost !=0), file ='export_tom.xlsx' )

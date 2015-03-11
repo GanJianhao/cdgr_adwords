@@ -2,7 +2,7 @@
 ############### Adwords Report #####################
 ####################################################
 
-load(".RData")
+load("C:/Users/tantonakis/Google Drive/Scripts/AnalyticsProj/cdgr_adwords/adwords_weekly_database.RData")
 
 library(RGA)
 library(xlsx)
@@ -24,16 +24,18 @@ rm(accs)
 
 
 # Start a report data.frame
-# report<-data.frame(year = 0,
-#                    week = 0,
-#                    date = 0,
-#                    adCostB = 0, 
-#                    adCostNB = 0,
-#                    regB = 0,
-#                    regNB = 0, 
-#                    clickB = 0, 
-#                    clickNB = 0                   
-# )
+report<-data.frame(year = 0,
+                   week = 0,
+                   date = 0,
+                   adCostB = 0, 
+                   adCostNB = 0,
+                   regB = 0,
+                   regNB = 0,
+                   ordB = 0,
+                   ordNB = 0,
+                   clickB = 0, 
+                   clickNB = 0                   
+)
 
 #Set Dates
 # YYYY-MM-DD , today, yesterday, or 7daysAgo
@@ -42,8 +44,8 @@ today <- Sys.Date()
 ####################################################
 ############### SOS!! CHANGE DATE###################
 ####################################################
-startdate = as.Date('2015-2-16')
-# startdate = as.Date('2013-12-30')
+# startdate = as.Date('2015-2-16')
+startdate = as.Date('2013-12-30')
 enddate = startdate+6
 weeksleft<-as.numeric(today-startdate) %/% 7
 
@@ -79,8 +81,8 @@ adwords<-get_ga(25764841, start.date = startdate, end.date = enddate,
 adwords <- adwords[adwords$impressions !=0,]
 
 #Calculate CPR, CPO
-adwords$cpr<-adwords$adCost / adwords$goal6Completions
-adwords$cpo<-adwords$adCost / adwords$goal1Completions
+adwords$cpr<-adwords$ad.cost / adwords$goal6Completions
+adwords$cpo<-adwords$ad.cost / adwords$goal1Completions
 
 
 # Break data frame to the three sheets
@@ -96,16 +98,16 @@ search<-  adwords [!(adwords$campaign %in% c("Remarketing Goods offer", "Remarke
                                            "Remarketing Artigiano", "Remarketing Dominos", 
                                            "App. Android-Text", "App. iOS-Text")),]
 
-# search$br_nbr<-0
-# search$br_nbr[search$campaign == 'Brand'] <- "Brand"
-# search$br_nbr[search$campaign != 'Brand'] <- "No_Brand"
+search$br_nbr<-0
+search$br_nbr[search$campaign == 'Brand'] <- "Brand"
+search$br_nbr[search$campaign != 'Brand'] <- "No_Brand"
 search$cpr<-NULL
 search$cpo<-NULL
-search$cpr<-search$adCost / search$goal6Completions
-search$cpo<-search$adCost / search$goal1Completions
+search$cpr<-search$ad.cost / search$goal6Completions
+search$cpo<-search$ad.cost / search$goal1Completions
 
 
-#Start filling the report dataframe with weekly data
+# # Start filling the report dataframe with weekly data
 tbadded<-data.frame(year = 0,
                     week = 0,
                     date = 0,
@@ -120,31 +122,33 @@ tbadded<-data.frame(year = 0,
 tbadded$year <- year(enddate)
 tbadded$week <-  week(enddate)
 tbadded$date <- enddate
-tbadded$adCostB <- search$adCost[search$campaign == 'Brand']
-tbadded$adCostNB <- sum(search$adCost[search$campaign != 'Brand'])
+tbadded$adCostB <- search$ad.cost[search$campaign == 'Brand']
+tbadded$adCostNB <- sum(search$ad.cost[search$campaign != 'Brand'])
 tbadded$regB <- search$goal6Completions[search$campaign == 'Brand']
 tbadded$regNB <- sum(search$goal6Completions[search$campaign != 'Brand'])
-tbadded$clickB <- search$adClicks[search$campaign == 'Brand']
-tbadded$clickNB <- sum(search$adClicks[search$campaign != 'Brand'])
+tbadded$ordB <- search$goal1Completions[search$campaign == 'Brand']
+tbadded$ordNB <- sum(search$goal1Completions[search$campaign != 'Brand'])
+tbadded$clickB <- search$ad.clicks[search$campaign == 'Brand']
+tbadded$clickNB <- sum(search$ad.clicks[search$campaign != 'Brand'])
 
 #Request for Android App new Installs
 
-android<-get_ga(81060646, start.date = startdate, end.date = enddate,
-                
-                metrics = "
-                        ga:goal1Completions, 
-                        ga:newUsers
-                ",
-                
-                dimensions = "ga:medium",
-                sort ="-ga:newUsers" ,
-                filters =  "ga:medium == cpc",
-                segment = NULL, 
-                sampling.level = NULL,
-                start.index = NULL, 
-                max.results = NULL, 
-                ga_token
-)
+# android<-get_ga(81060646, start.date = startdate, end.date = enddate,
+#                 
+#                 metrics = "
+#                         ga:goal1Completions, 
+#                         ga:newUsers
+#                 ",
+#                 
+#                 dimensions = "ga:medium",
+#                 sort ="-ga:newUsers" ,
+#                 filters =  "ga:medium == cpc",
+#                 segment = NULL, 
+#                 sampling.level = NULL,
+#                 start.index = NULL, 
+#                 max.results = NULL, 
+#                 ga_token
+# )
 
 
 startdate=startdate+7
@@ -154,6 +158,8 @@ weeksleft<-as.numeric(today-startdate) %/% 7
 
 report$cprB<-NULL
 report$cprNB<-NULL
+report$cpoB<-NULL
+report$cpoNB<-NULL
 
 # kati se rbind       
 report<-rbind(report,tbadded )       
@@ -162,7 +168,10 @@ report<-rbind(report,tbadded )
 #report<-report[-1,]  
 report$cprB<-report$adCostB / report$regB
 report$cprNB<-report$adCostNB / report$regNB
-
+report$cpoB<-report$adCostB / report$ordB
+report$cproB<-report$adCostNB / report$ordNB
+report$cpcB<-report$adCostB / report$clickB
+report$cpcNB<-report$adCostNB / report$clickNB
 ## Plotting
 
 # x<-1:20
@@ -184,7 +193,7 @@ axis(4)
 # με δύο άξονες!! Yaaayyyy!!!
 
 # Ad Costs Brand campaign
-plot(report$date, report$adCostB, type= 'h', lwd = 4, col = 'deepskyblue2', 
+plot(report$date, report$cpcB, type= 'h', lwd = 4, col = 'deepskyblue2', 
      main = "Brand Campaign Costs per week" ,xlab="Date", ylab = "Ad Cost")
 
 # Registrations

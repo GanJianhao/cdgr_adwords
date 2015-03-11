@@ -29,7 +29,7 @@ rm(accs)
 ############### SOS!! CHANGE DATE###################
 ####################################################
 startdate = as.Date('2015-01-01')
-enddate = as.Date('2015-01-31')
+enddate = as.Date('2015-02-28')
 
 
 adwords_init<-get_ga(25764841, start.date = startdate, end.date = enddate,
@@ -64,22 +64,22 @@ adwords_init<-get_ga(25764841, start.date = startdate, end.date = enddate,
 adwords_init <- adwords_init[adwords_init$impressions !=0,]
 
 
-impressions<-select(adwords_init, campaign, yearMonth, impressions) %>% spread(yearMonth, impressions)
+impressions<-select(adwords_init, campaign, year.month, impressions) %>% spread(year.month, impressions)
 impressions$metric<-'impressions'
 
-adClicks<-select(adwords_init, campaign, yearMonth, adClicks) %>% spread(yearMonth, adClicks)
+adClicks<-select(adwords_init, campaign, year.month, ad.clicks) %>% spread(year.month, ad.clicks)
 adClicks$metric<-'adClicks'
 
-sessions<-select(adwords_init, campaign, yearMonth, sessions) %>% spread(yearMonth, sessions)
+sessions<-select(adwords_init, campaign, year.month, sessions) %>% spread(year.month, sessions)
 sessions$metric<-'sessions'
 
-newUsers<-select(adwords_init, campaign, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
+newUsers<-select(adwords_init, campaign, year.month, new.users) %>% spread(year.month, new.users)
 newUsers$metric<-'newUsers'
 
-adCost<-select(adwords_init, campaign, yearMonth, adCost) %>% spread(yearMonth, adCost)
+adCost<-select(adwords_init, campaign, year.month, ad.cost) %>% spread(year.month, ad.cost)
 adCost$metric<-'adCost'
 
-reg<-select(adwords_init, campaign, yearMonth, goal6Completions) %>% spread(yearMonth, goal6Completions)
+reg<-select(adwords_init, campaign, year.month, goal6Completions) %>% spread(year.month, goal6Completions)
 reg$metric<-'registrations'
 
 report<- rbind(impressions, adClicks, sessions, newUsers,adCost, reg  )
@@ -108,6 +108,8 @@ report$cat[grep("mundo sports", report$campaign , ignore.case=FALSE, fixed=TRUE)
 report$cat[grep("Mundobasket", report$campaign , ignore.case=TRUE, fixed=FALSE)]<-"Youtube"
 report$cat[grep("TV #match_day_offer", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Youtube"
 report$cat[grep("TV generic", report$campaign , ignore.case=FALSE, fixed=FALSE)]<-"Youtube"
+report$cat[grep("Goody's 1+1", report$campaign , ignore.case=FALSE, fixed=TRUE)]<-"Youtube"
+
 report$cat[report$cat==0]<-"Rest"
 report<-report[,c(1,(ncol(report)-1), ncol(report), 2:(ncol(report)-2))]
 rm(adwords_init)
@@ -140,15 +142,15 @@ free_seg<-get_ga(25764841, start.date = startdate, end.date = enddate,
                      ga_token
 )
 # free_seg
-free_seg<-select(free_seg,channelGrouping, yearMonth, sessions, newUsers, goal6Completions)
+free_seg<-select(free_seg,channel.grouping, year.month, sessions, new.users, goal6Completions)
 
-sessions<-select(free_seg,channelGrouping, yearMonth, sessions) %>% spread(yearMonth, sessions)
+sessions<-select(free_seg,channel.grouping, year.month, sessions) %>% spread(year.month, sessions)
 sessions$metric<-'sessions'
 
-newUsers<-select(free_seg,channelGrouping, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
+newUsers<-select(free_seg,channel.grouping, year.month, new.users) %>% spread(year.month, new.users)
 newUsers$metric<-'newUsers'
 
-registrations<-select(free_seg,channelGrouping, yearMonth, goal6Completions) %>% spread(yearMonth, goal6Completions)
+registrations<-select(free_seg,channel.grouping, year.month, goal6Completions) %>% spread(year.month, goal6Completions)
 registrations$metric<-'registrations'
 
 web_free_seg<- rbind(sessions, newUsers, registrations)
@@ -208,11 +210,11 @@ ios_free$app<-'ios'
 mob_free<-rbind(and_free, ios_free)
 rm(and_free, ios_free)
 
-sessions<-select(mob_free, app, yearMonth, sessions) %>% spread(yearMonth, sessions)
+sessions<-select(mob_free, app, year.month, sessions) %>% spread(year.month, sessions)
 sessions$cat<-'sessions'
-users<-select(mob_free, app, yearMonth, users) %>% spread(yearMonth, users)
+users<-select(mob_free, app, year.month, users) %>% spread(year.month, users)
 users$cat<-'users'
-newUsers<-select(mob_free, app, yearMonth, newUsers) %>% spread(yearMonth, newUsers)
+newUsers<-select(mob_free, app, year.month, new.users) %>% spread(year.month, new.users)
 newUsers$cat<-'newUsers'
 mob_free<-rbind(sessions,users, newUsers)
 mob_free<-mob_free[,c(1,ncol(mob_free),2:(ncol(mob_free)-1))]
@@ -285,7 +287,7 @@ proc.time() - ptm
 #
 
 # Establish connection
-con <- dbConnect(RMySQL::MySQL(), host = 'db.clickdelivery.gr', port = 3307, dbname = "beta",
+con <- dbConnect(RMySQL::MySQL(), host = '172.20.0.1', port = 3307, dbname = "beta",
                  user = "tantonakis", password = "2secret4usAll!")
 # Send query
 rs <- dbSendQuery(con,"
@@ -295,7 +297,7 @@ SELECT            MONTH(FROM_UNIXTIME(`user_master`.`u_date`)) as MONTH,
                   COUNT(*) AS VERIFIED_USERS
                   FROM `user_master`
                   WHERE `user_master`.`verification_date` >= UNIX_TIMESTAMP('2015-01-01')
-                  AND `user_master`.`verification_date` < UNIX_TIMESTAMP('2015-02-01')
+                  AND `user_master`.`verification_date` < UNIX_TIMESTAMP('2015-03-01')
                   AND `user_master`.`status` = 'VERIFIED'
                   AND `user_master`.`is_deleted` = 'N'
                   GROUP BY `user_master`.`referal_source`, MONTH(FROM_UNIXTIME(`user_master`.`u_date`))
@@ -324,7 +326,7 @@ SELECT MONTH(FROM_UNIXTIME(`user_master`.`i_date`)) as MONTH,
                 COUNT(*) AS REGISTERED_USERS
                 FROM `user_master`
 		WHERE `user_master`.`i_date` >= UNIX_TIMESTAMP('2015-01-01')
-		AND `user_master`.`i_date` < UNIX_TIMESTAMP('2015-02-01')
+		AND `user_master`.`i_date` < UNIX_TIMESTAMP('2015-03-01')
 		AND `user_master`.`is_deleted` = 'N'
 		GROUP BY `user_master`.`referal_source`, MONTH(FROM_UNIXTIME(`user_master`.`i_date`))
                   
@@ -356,7 +358,7 @@ rs <- dbSendQuery(con,"
                   FROM `order_master`
 
                   WHERE `order_master`.`i_date` >= UNIX_TIMESTAMP('2015-01-01')
-                  AND `order_master`.`i_date` < UNIX_TIMESTAMP('2015-02-01')
+                  AND `order_master`.`i_date` < UNIX_TIMESTAMP('2015-03-01')
                   AND `order_master`.`status` IN ('VERIFIED', 'REJECTED')
                   AND `order_master`.`is_deleted` = 'N'
                   GROUP BY  `order_master`.`order_referal`, MONTH(FROM_UNIXTIME(`order_master`.`i_date`))
@@ -475,7 +477,8 @@ orders_src$metric<-'orders'
 registered_src[is.na(registered_src)]<-0
 verified_src[is.na(verified_src)]<-0
 orders_src[is.na(orders_src)]<-0
-#verified_src$'2'<-NULL
+#verified_src$'3'<-NULL
+#verified_src$'10'<-NULL
 
 sql<-rbind(registered_src, verified_src, orders_src)
 sql<-sql[,c(1,ncol(sql), 2:(ncol(sql)-1))]
